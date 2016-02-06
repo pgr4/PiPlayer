@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 import vlc
 from ctypes import *
+import os
 from os import listdir
 from os.path import isfile, join
 
@@ -50,16 +51,15 @@ def prev(request):
     origState = vlc.libvlc_media_list_player_get_state(mediaListPlayer)
     vlc.libvlc_media_list_player_previous(mediaListPlayer)
     newState = vlc.libvlc_media_list_player_get_state(mediaListPlayer)
-    return HttpResponse(mediaListPlayer.get_media_player)
     return HttpResponse(showStateProgress(origState, newState))
 
 #Gets the containing directory given a file path
 def getDirectoryFromPath(path):
-    arr = path.split('\\')
+    arr = path.split(os.sep)#seperate the folders based on os 
     size = len(arr) - 1
     dir = r''
     for i in range(0, size):
-        dir += arr[i] + '\\'
+        dir += arr[i] + os.sep
     return dir
 
 #Returns all files in a given directory
@@ -75,8 +75,10 @@ def addFile(libvlc, path):
 def addFileToMediaList(list, item, index = 0):
     return vlc.libvlc_media_list_insert_media(list, item, index)
 
+#returns the previous and current state
 def showStateProgress(prevState, newState):
     return str(prevState) + "------->" + str(newState)
 
+#initialize
 libvlc = vlc.libvlc_new(0, None)# init libvlc
 mediaListPlayer = vlc.MediaListPlayer()#set media List player
